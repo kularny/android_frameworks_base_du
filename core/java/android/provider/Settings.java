@@ -3853,6 +3853,18 @@ public final class Settings {
         public static final String LOCK_SCREEN_CUSTOM_NOTIF = "lock_screen_custom_notif";
 
         /**
+         * change lockscreen alpha color
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALPHA = "lockscreen_alpha";
+
+        /**
+         * change lockscreen security alpha color
+         * @hide
+         */
+        public static final String LOCKSCREEN_SECURITY_ALPHA = "lockscreen_security_alpha";
+
+        /**
          * custom lockscreen max notification config
          * @hide
          */
@@ -3911,6 +3923,12 @@ public final class Settings {
          * @hide
          */
         public static final String QS_NUM_TILE_COLUMNS = "sysui_qs_num_tile_columns";
+
+        /**
+         * Options to decide wether or not to show keyguard bouncer on secure lockscreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_BOUNCER = "lockscreen_bouncer";
 
         /**
          * Whether to display set of animations when prompting the power menu
@@ -4007,6 +4025,12 @@ public final class Settings {
          * @hide
          */
         public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
+
+        /**
+         * Whether to show switches for wifi/cell/bt in the settings dashboard
+         * @hide
+         */
+        public static final String DASHBOARD_SWITCHES = "dashboard_switches";
 
         /**
          * Toast icon
