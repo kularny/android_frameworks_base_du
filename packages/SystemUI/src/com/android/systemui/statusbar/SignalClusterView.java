@@ -57,6 +57,7 @@ public class SignalClusterView
     private static final String SLOT_MOBILE = "mobile";
     private static final String SLOT_WIFI = "wifi";
     private static final String SLOT_ETHERNET = "ethernet";
+    private static final String SLOT_VPN = "vpn";
 
     NetworkControllerImpl mNC;
     SecurityController mSC;
@@ -93,6 +94,7 @@ public class SignalClusterView
     private boolean mBlockMobile;
     private boolean mBlockWifi;
     private boolean mBlockEthernet;
+    private boolean mBlockVpn;
 
     public SignalClusterView(Context context) {
         this(context, null);
@@ -116,13 +118,15 @@ public class SignalClusterView
         boolean blockMobile = blockList.contains(SLOT_MOBILE);
         boolean blockWifi = blockList.contains(SLOT_WIFI);
         boolean blockEthernet = blockList.contains(SLOT_ETHERNET);
+        boolean blockVpn = blockList.contains(SLOT_VPN);
 
         if (blockAirplane != mBlockAirplane || blockMobile != mBlockMobile
-                || blockEthernet != mBlockEthernet || blockWifi != mBlockWifi) {
+                || blockEthernet != mBlockEthernet || blockWifi != mBlockWifi || blockVpn != mBlockVpn) {
             mBlockAirplane = blockAirplane;
             mBlockMobile = blockMobile;
             mBlockEthernet = blockEthernet;
             mBlockWifi = blockWifi;
+            mBlockVpn = blockVpn;
             // Re-register to get new callbacks.
             mNC.removeSignalCallback(this);
             mNC.addSignalCallback(this);
@@ -138,7 +142,7 @@ public class SignalClusterView
         if (DEBUG) Log.d(TAG, "SecurityController=" + sc);
         mSC = sc;
         mSC.addCallback(this);
-        mVpnVisible = mSC.isVpnEnabled();
+        mVpnVisible = mSC.isVpnEnabled() && !mBlockVpn;
     }
 
     @Override
@@ -199,7 +203,7 @@ public class SignalClusterView
             @Override
             public void run() {
                 if (mSC != null) {
-                    mVpnVisible = mSC.isVpnEnabled();
+                    mVpnVisible = mSC.isVpnEnabled() && !mBlockVpn;
                     apply();
                 }
             }
@@ -347,10 +351,13 @@ public class SignalClusterView
 
         for (PhoneState state : mPhoneStates) {
             if (state.mMobile != null) {
+                state.maybeStopAnimatableDrawable(state.mMobile);
                 state.mMobile.setImageDrawable(null);
+                state.mLastMobileStrengthId = -1;
             }
             if (state.mMobileType != null) {
                 state.mMobileType.setImageDrawable(null);
+                state.mLastMobileTypeId = -1;
             }
         }
 
@@ -478,6 +485,8 @@ public class SignalClusterView
         private final int mSubId;
         private boolean mMobileVisible = false;
         private int mMobileStrengthId = 0, mMobileTypeId = 0;
+        private int mLastMobileStrengthId = -1;
+        private int mLastMobileTypeId = -1;
         private boolean mIsMobileTypeIconWide;
         private String mMobileDescription, mMobileTypeDescription;
 
@@ -500,25 +509,16 @@ public class SignalClusterView
 
         public boolean apply(boolean isSecondaryIcon) {
             if (mMobileVisible && !mIsAirplaneMode) {
-                mMobile.setImageResource(mMobileStrengthId);
-                Drawable mobileDrawable = mMobile.getDrawable();
-                if (mobileDrawable instanceof Animatable) {
-                    Animatable ad = (Animatable) mobileDrawable;
-                    if (!ad.isRunning()) {
-                        ad.start();
-                    }
+                if (mLastMobileStrengthId != mMobileStrengthId) {
+                    updateAnimatableIcon(mMobile, mMobileStrengthId);
+                    updateAnimatableIcon(mMobileDark, mMobileStrengthId);
+                    mLastMobileStrengthId = mMobileStrengthId;
                 }
 
-                mMobileDark.setImageResource(mMobileStrengthId);
-                Drawable mobileDarkDrawable = mMobileDark.getDrawable();
-                if (mobileDarkDrawable instanceof Animatable) {
-                    Animatable ad = (Animatable) mobileDarkDrawable;
-                    if (!ad.isRunning()) {
-                        ad.start();
-                    }
+                if (mLastMobileTypeId != mMobileTypeId) {
+                    mMobileType.setImageResource(mMobileTypeId);
+                    mLastMobileTypeId = mMobileTypeId;
                 }
-
-                mMobileType.setImageResource(mMobileTypeId);
                 mMobileGroup.setContentDescription(mMobileTypeDescription
                         + " " + mMobileDescription);
                 mMobileGroup.setVisibility(View.VISIBLE);
@@ -540,6 +540,32 @@ public class SignalClusterView
             mMobileType.setVisibility(mMobileTypeId != 0 ? View.VISIBLE : View.GONE);
 
             return mMobileVisible;
+        }
+
+        private void updateAnimatableIcon(ImageView view, int resId) {
+            maybeStopAnimatableDrawable(view);
+            view.setImageResource(resId);
+            maybeStartAnimatableDrawable(view);
+        }
+
+        private void maybeStopAnimatableDrawable(ImageView view) {
+            Drawable drawable = view.getDrawable();
+            if (drawable instanceof Animatable) {
+                Animatable ad = (Animatable) drawable;
+                if (ad.isRunning()) {
+                    ad.stop();
+                }
+            }
+        }
+
+        private void maybeStartAnimatableDrawable(ImageView view) {
+            Drawable drawable = view.getDrawable();
+            if (drawable instanceof Animatable) {
+                Animatable ad = (Animatable) drawable;
+                if (!ad.isRunning()) {
+                    ad.start();
+                }
+            }
         }
 
         public void populateAccessibilityEvent(AccessibilityEvent event) {

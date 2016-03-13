@@ -93,7 +93,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.internal.logging.MetricsLogger;
-import com.android.internal.navigation.Navigator;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
@@ -109,6 +108,7 @@ import com.android.systemui.SwipeHelper;
 import com.android.systemui.SystemUI;
 import com.android.systemui.assist.AssistManager;
 import com.android.systemui.chaos.lab.gestureanywhere.GestureAnywhereView;
+import com.android.systemui.navigation.Navigator;
 import com.android.systemui.recents.Recents;
 import com.android.systemui.statusbar.NotificationData.Entry;
 import com.android.systemui.statusbar.appcirclesidebar.AppCircleSidebar;
@@ -1465,27 +1465,50 @@ public abstract class BaseStatusBar extends SystemUI implements
         View contentViewLocal = null;
         View bigContentViewLocal = null;
         View headsUpContentViewLocal = null;
-        String themePackageName = mCurrentTheme != null ?
-                mCurrentTheme.getOverlayForStatusBar() : null;
+        String themePackageName = mCurrentTheme != null
+                ? mCurrentTheme.getOverlayPkgNameForApp(sbn.getPackageName()) : null;
+        String statusBarThemePackageName = mCurrentTheme != null
+                ? mCurrentTheme.getOverlayForStatusBar() : null;
+
         try {
             contentViewLocal = contentView.apply(
                     sbn.getPackageContext(mContext),
                     contentContainer,
                     mOnClickHandler,
-                    themePackageName);
+                    statusBarThemePackageName);
+
+            final int platformTemplateRootViewId =
+                    com.android.internal.R.id.status_bar_latest_event_content;
+            final String inflationThemePackageName;
+            if (themePackageName != null
+                    && !TextUtils.equals(themePackageName, statusBarThemePackageName)
+                    && contentViewLocal.getId() != platformTemplateRootViewId) {
+                // This notification uses custom RemoteViews, and its app uses a different
+                // theme than the status bar. Re-inflate the views using the app's theme,
+                // as the RemoteViews likely will contain resources of the app, not the platform
+                inflationThemePackageName = themePackageName;
+                contentViewLocal = contentView.apply(
+                        sbn.getPackageContext(mContext),
+                        contentContainer,
+                        mOnClickHandler,
+                        inflationThemePackageName);
+            } else {
+                inflationThemePackageName = statusBarThemePackageName;
+            }
+
             if (bigContentView != null) {
                 bigContentViewLocal = bigContentView.apply(
                         sbn.getPackageContext(mContext),
                         contentContainer,
                         mOnClickHandler,
-                        themePackageName);
+                        inflationThemePackageName);
             }
             if (headsUpContentView != null) {
                 headsUpContentViewLocal = headsUpContentView.apply(
                         sbn.getPackageContext(mContext),
                         contentContainer,
                         mOnClickHandler,
-                        themePackageName);
+                        inflationThemePackageName);
             }
         }
         catch (RuntimeException e) {
@@ -2070,8 +2093,9 @@ public abstract class BaseStatusBar extends SystemUI implements
         boolean shouldInterrupt = shouldInterrupt(entry, notification);
         boolean alertAgain = alertAgain(entry, n);
 
+        final StatusBarNotification oldNotification = entry.notification;
         entry.notification = notification;
-        mGroupManager.onEntryUpdated(entry, entry.notification);
+        mGroupManager.onEntryUpdated(entry, oldNotification);
 
         boolean updateSuccessful = false;
         if (applyInPlace) {

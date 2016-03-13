@@ -3966,6 +3966,13 @@ public final class Settings {
         public static final String POWERMENU_SCREENSHOT = "powermenu_screenshot";
 
         /**
+         * Whether to display the torch option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_TORCH = "powermenu_torch";
+
+        /**
          * Whether to display settings in the power menu
          *
          * @hide
@@ -4480,6 +4487,13 @@ public final class Settings {
                 "proximity_auto_speaker_incall_only";
 
         /**
+         * Whether to wake up screen when call is disconnected
+         *
+         * @hide
+         */
+        public static final String WAKEUP_SCREEN_WHEN_CALL_DISCONNECTED = "wakeup_screen_when_call_disconnected";
+
+        /**
          * Which applications to disable heads up notifications in
          *
          * @hide
@@ -4572,6 +4586,12 @@ public final class Settings {
          * @hide
          */
         public static final String RECENT_CARD_TEXT_COLOR = "recent_card_text_color";
+
+        /**
+         * show bluetooth icon only when connected
+         * @hide
+         */
+        public static final String SHOW_BLUETOOTH_ICON = "show_bluetooth_icon";
 
         /**
          * Whether the phone ringtone should be played in an increasing manner
@@ -7717,6 +7737,13 @@ public final class Settings {
         public static final String AIRPLANE_MODE_TOGGLEABLE_RADIOS = "airplane_mode_toggleable_radios";
 
         /**
+         * A Long representing a bitmap of profiles that should be disabled when bluetooth starts.
+         * See {@link android.bluetooth.BluetoothProfile}.
+         * {@hide}
+         */
+        public static final String BLUETOOTH_DISABLED_PROFILES = "bluetooth_disabled_profiles";
+
+        /**
          * The policy for deciding when Wi-Fi should go to sleep (which will in
          * turn switch to using the mobile data as an Internet connection).
          * <p>
@@ -8980,10 +9007,12 @@ public final class Settings {
          * The following keys are supported:
          *
          * <pre>
-         * idle_duration        (long)
+         * idle_duration2       (long)
          * wallclock_threshold  (long)
          * parole_interval      (long)
          * parole_duration      (long)
+         *
+         * idle_duration        (long) // This is deprecated and used to circumvent b/26355386.
          * </pre>
          *
          * <p>
@@ -9837,6 +9866,13 @@ public final class Settings {
          * @hide
          */
         public static final String CONTACT_METADATA_SYNC = "contact_metadata_sync";
+
+        /**
+         * Whether to enable cellular on boot.
+         * The value 1 - enable, 0 - disable
+         * @hide
+         */
+        public static final String ENABLE_CELLULAR_ON_BOOT = "enable_cellular_on_boot";
     }
 
     /**
