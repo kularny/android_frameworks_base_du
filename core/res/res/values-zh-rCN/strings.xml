@@ -1096,7 +1096,7 @@
     <item>中国雅虎</item>
     <item>Skype</item>
     <item>QQ</item>
-    <item>Google Talk</item>
+    <item>环聊</item>
     <item>ICQ</item>
     <item>Jabber</item>
   </string-array>
@@ -2436,7 +2436,7 @@
   <!-- Description of the Cancel button in a KeyboardView. [CHAR LIMIT=NONE] -->
   <string name="keyboardview_keycode_cancel">取消</string>
   <!-- Description of the Delete button in a KeyboardView. [CHAR LIMIT=NONE] -->
-  <string name="keyboardview_keycode_delete">Delete</string>
+  <string name="keyboardview_keycode_delete">删除</string>
   <!-- Description of the Done button in a KeyboardView. [CHAR LIMIT=NONE] -->
   <string name="keyboardview_keycode_done">完成</string>
   <!-- Description of the Mode change button in a KeyboardView. [CHAR LIMIT=NONE] -->
