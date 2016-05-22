@@ -184,14 +184,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     public void showDialog(boolean keyguardShowing, boolean isDeviceProvisioned) {
         mKeyguardShowing = keyguardShowing;
         mDeviceProvisioned = isDeviceProvisioned;
-        if (mDialog != null && mUiContext == null) {
+        if (mDialog != null) {
             mDialog.dismiss();
             mDialog = null;
-            mDialog = createDialog();
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
         } else {
-            mDialog = createDialog();
             handleShow();
         }
     }
@@ -210,7 +208,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private void handleShow() {
         awakenIfNecessary();
+        mDialog = createDialog();
         prepareDialog();
+
         WindowManager.LayoutParams attrs = mDialog.getWindow().getAttributes();
         attrs.setTitle("GlobalActions");
 
@@ -230,6 +230,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         mDialog.getWindow().setAttributes(attrs);
+        mDialog.getWindow().setDimAmount(setPowerRebootDialogDim());
         mDialog.show();
         mDialog.getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_DISABLE_EXPAND);
     }
@@ -239,10 +240,18 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 Settings.System.POWER_MENU_ANIMATIONS, 0);
     }
 
+    private float setPowerRebootDialogDim() {
+        int mPowerRebootDialogDim = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_REBOOT_DIALOG_DIM, 50);
+        double dDim = mPowerRebootDialogDim / 100.0;
+        float dim = (float) dDim;
+        return dim;
+    }
+
     private Context getUiContext() {
         if (mUiContext == null) {
             mUiContext = ThemeUtils.createUiContext(mContext);
-            mUiContext.setTheme(android.R.style.Theme_DeviceDefault_Light_DarkActionBar);
+            mUiContext.setTheme(com.android.internal.R.style.Theme_Power_Dialog);
         }
         return mUiContext != null ? mUiContext : mContext;
     }

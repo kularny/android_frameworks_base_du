@@ -108,10 +108,10 @@
   <string name="quick_settings_network_adb_disabled_label">Inaktiverad</string>
   <!-- Themes QS Tile -->
   <string name="quick_settings_themes">Teman</string>
-  <string name="quick_settings_themes_icon_packs">Apply icon pack</string>
-  <string name="quick_settings_themes_app_theme_with_label">Apply theme to <xliff:g id="application">%1$s</xliff:g></string>
-  <string name="quick_settings_themes_app_theme">Apply theme to app</string>
-  <string name="quick_settings_themes_system_theme">Apply theme</string>
+  <string name="quick_settings_themes_icon_packs">Tillämpa ikonpack</string>
+  <string name="quick_settings_themes_app_theme_with_label">Tillämpa tema till <xliff:g id="application">%1$s</xliff:g></string>
+  <string name="quick_settings_themes_app_theme">Tillämpa tema till app</string>
+  <string name="quick_settings_themes_system_theme">Tillämpa tema</string>
   <string name="quick_settings_themes_default_theme">Standard</string>
   <string name="quick_settings_themes_match_system">Matcha systemets tema</string>
   <!-- Task Manager -->
@@ -132,8 +132,8 @@
   <string name="quick_settings_navigation_bar">Navigeringsfält</string>
   <string name="quick_settings_smartbar">SmartBar</string>
   <string name="quick_settings_smartbar_off">SmartBar av</string>
-  <string name="quick_settings_fling">Fling gest</string>
-  <string name="quick_settings_fling_off">Fling gest av</string>
+  <string name="quick_settings_fling">Fling</string>
+  <string name="quick_settings_fling_off">Fling off</string>
   <!-- IME selector Tile -->
   <string name="quick_settings_ime_label">IME</string>
   <!-- Hotspot airplane mode -->
@@ -144,8 +144,6 @@
   <string name="status_bar_headset">Trådanslutet headset</string>
   <!-- vpn icon switch -->
   <string name="status_bar_vpn">VPN</string>
-  <!-- bt only connected switch -->
-  <string name="status_bar_btcon">Bluetooth endast vid ansluten</string>
   <!-- Caffeine Tile -->
   <string name="quick_settings_caffeine_label">Koffein</string>
   <!-- Content description of the caffeine tile in quick settings when off (not shown on the screen). [CHAR LIMIT=NONE] -->
@@ -157,4 +155,7 @@
   <!-- Heads up toast -->
   <string name="heads_up_enabled">Heads up-meddelanden är aktiverade</string>
   <string name="heads_up_disabled">Heads up-meddelanden är inaktiverade</string>
+  <!-- Path data for portrait battery -->
+  <!-- Path data for landscape battery -->
+  <!-- Path data for circle battery -->
 </resources>

@@ -109,10 +109,10 @@
   <string name="quick_settings_network_adb_disabled_label">Выключено</string>
   <!-- Themes QS Tile -->
   <string name="quick_settings_themes">Темы</string>
-  <string name="quick_settings_themes_icon_packs">Apply icon pack</string>
-  <string name="quick_settings_themes_app_theme_with_label">Apply theme to <xliff:g id="application">%1$s</xliff:g></string>
-  <string name="quick_settings_themes_app_theme">Apply theme to app</string>
-  <string name="quick_settings_themes_system_theme">Apply theme</string>
+  <string name="quick_settings_themes_icon_packs">Применить пакет значков</string>
+  <string name="quick_settings_themes_app_theme_with_label">Применить тему к <xliff:g id="application">%1$s </xliff:g></string>
+  <string name="quick_settings_themes_app_theme">Применить тему к приложению</string>
+  <string name="quick_settings_themes_system_theme">Применить тему</string>
   <string name="quick_settings_themes_default_theme">По умолчанию</string>
   <string name="quick_settings_themes_match_system">Использовать системную тему</string>
   <!-- Task Manager -->
@@ -133,8 +133,8 @@
   <string name="quick_settings_navigation_bar">Панель навигации</string>
   <string name="quick_settings_smartbar">SmartBar</string>
   <string name="quick_settings_smartbar_off">SmartBar выкл</string>
-  <string name="quick_settings_fling">Жесты Fling</string>
-  <string name="quick_settings_fling_off">Жесты Fling выключены</string>
+  <string name="quick_settings_fling">Fling</string>
+  <string name="quick_settings_fling_off">Fling off</string>
   <!-- IME selector Tile -->
   <string name="quick_settings_ime_label">Способ ввода</string>
   <!-- Hotspot airplane mode -->
@@ -145,8 +145,6 @@
   <string name="status_bar_headset">Проводная гарнитура</string>
   <!-- vpn icon switch -->
   <string name="status_bar_vpn">VPN</string>
-  <!-- bt only connected switch -->
-  <string name="status_bar_btcon">Bluetooth только при подключении</string>
   <!-- Caffeine Tile -->
   <string name="quick_settings_caffeine_label">Запрет откл. экрана</string>
   <!-- Content description of the caffeine tile in quick settings when off (not shown on the screen). [CHAR LIMIT=NONE] -->
@@ -158,4 +156,7 @@
   <!-- Heads up toast -->
   <string name="heads_up_enabled">Всплывающие уведомления включены</string>
   <string name="heads_up_disabled">Всплывающие уведомления отключены</string>
+  <!-- Path data for portrait battery -->
+  <!-- Path data for landscape battery -->
+  <!-- Path data for circle battery -->
 </resources>

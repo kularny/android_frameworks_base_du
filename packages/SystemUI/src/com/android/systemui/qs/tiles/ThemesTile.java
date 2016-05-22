@@ -239,12 +239,13 @@ public class ThemesTile extends QSTile<QSTile.BooleanState> implements ThemeMana
 
             String pkg = (String) selectedItem.tag;
 
-            ThemeChangeRequest.Builder builder = new ThemeChangeRequest.Builder();
+            final ThemeChangeRequest.Builder builder = new ThemeChangeRequest.Builder();
 
             if (mode == Mode.ALL_THEMES) {
                 builder.setStatusBar(pkg);
                 builder.setOverlay(pkg);
                 builder.setNavBar(pkg);
+                builder.setHeaders(pkg);
             } else if (mode == Mode.ICON_PACK) {
                 builder.setIcons(pkg);
             } else if (mode == Mode.APP_THEME) {
@@ -253,8 +254,18 @@ public class ThemesTile extends QSTile<QSTile.BooleanState> implements ThemeMana
                 builder.setAppOverlay(getTopApp(), pkg);
             }
 
-            mService.requestThemeChange(builder.build(), false);
+            // let's collapse the panel when we are going to recreate the statusbar
+            if (mode == Mode.ALL_THEMES || mode == Mode.ICON_PACK) {
+                mHost.collapsePanels();
+            }
 
+            // delay this slightly to allow for panel collapse or tap ripple without jank
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mService.requestThemeChange(builder.build(), false);
+                }
+            }, 500);
         }
 
         private String getCurrentIconPack() {

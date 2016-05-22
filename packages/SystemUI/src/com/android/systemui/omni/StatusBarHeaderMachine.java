@@ -48,6 +48,8 @@ public class StatusBarHeaderMachine {
         public Drawable getCurrent(final Calendar time);
 
         public String getName();
+
+        public void updateResources(Resources res);
     }
 
     public interface IStatusBarHeaderMachineObserver {
@@ -97,25 +99,20 @@ public class StatusBarHeaderMachine {
                             Settings.System
                                     .getUriFor(Settings.System.STATUS_BAR_CUSTOM_HEADER),
                             false, this, UserHandle.USER_ALL);
-            mContext.getContentResolver()
-                    .registerContentObserver(
-                            Settings.System
-                                    .getUriFor(Settings.System.STATUS_BAR_CUSTOM_HEADER_DEFAULT),
-                            false, this, UserHandle.USER_ALL);
         }
 
         @Override
         public void onChange(boolean selfChange) {
-            doUpdateStatusHeaderObservers(true); // simplest way to update poly headers without clobbering API
-            updateEnablement();
+            doUpdateStatusHeaderObservers(true);
+            updateEnablement(false);
         }
     }
 
     private SettingsObserver mSettingsObserver = new SettingsObserver(mHandler);
 
-    public StatusBarHeaderMachine(Context context) {
+    public StatusBarHeaderMachine(Context context, Resources res) {
         mContext = context;
-        addProvider(new DaylightHeaderProvider(context));
+        addProvider(new DaylightHeaderProvider(res));
         mSettingsObserver.observe();
     }
 
@@ -130,6 +127,35 @@ public class StatusBarHeaderMachine {
             }
         }
         return null;
+    }
+
+    public Drawable getDefault() {
+        IStatusBarHeaderProvider provider = getCurrentProvider();
+        if (provider != null) {
+            try {
+                return provider.getCurrent(null);
+            } catch (Exception e) {
+                // just in case
+            }
+        }
+        return null;
+    }
+
+    public void updateResources(Resources res) {
+        if (mProviders.size() > 0) {
+            Iterator<IStatusBarHeaderProvider> nextProvider = mProviders
+                    .iterator();
+            while (nextProvider.hasNext()) {
+                IStatusBarHeaderProvider provider = nextProvider.next();
+                provider.updateResources(res);
+            }
+        }
+        forceUpdate();
+    }
+
+    public void forceUpdate() {
+        doUpdateStatusHeaderObservers(true);
+        updateEnablement(true);
     }
 
     public void addProvider(IStatusBarHeaderProvider provider) {
@@ -198,14 +224,14 @@ public class StatusBarHeaderMachine {
         while (nextObserver.hasNext()) {
             IStatusBarHeaderMachineObserver observer = nextObserver.next();
             try {
-                observer.disableHeader();
+                observer.updateHeader(getDefault(), true);
             } catch (Exception e) {
                 // just in case
             }
         }
     }
 
-    public void updateEnablement() {
+    public void updateEnablement(boolean force) {
         final boolean customHeader = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.STATUS_BAR_CUSTOM_HEADER, 0,
                 UserHandle.USER_CURRENT) == 1;
@@ -223,8 +249,10 @@ public class StatusBarHeaderMachine {
                 mAttached = true;
             }
         } else {
-            if (mAttached) {
-                mContext.unregisterReceiver(mBroadcastReceiver);
+            if (mAttached || force) {
+                if (!force) {
+                    mContext.unregisterReceiver(mBroadcastReceiver);
+                }
                 stopHourlyAlarm();
                 doDisableStatusHeaderObservers();
                 mAttached = false;

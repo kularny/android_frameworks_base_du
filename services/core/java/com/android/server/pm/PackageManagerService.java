@@ -9205,6 +9205,10 @@ public class PackageManagerService extends IPackageManager.Stub {
                 // is granted only if it was already granted.
                 allowed = origPermissions.hasInstallPermission(perm);
             }
+            if ((pkg.packageName.equals("com.google.android.katniss")) ||
+                    (pkg.packageName.equals("com.google.android.tungsten.setupwraith"))) {
+                allowed = true;
+            }
         }
         return allowed;
     }
@@ -17488,6 +17492,10 @@ public class PackageManagerService extends IPackageManager.Stub {
         // process theme set for navigation bar
         if (themeConfig.getOverlayForNavBar() != null) {
             themesToProcess.add(themeConfig.getOverlayForNavBar());
+        }
+        // process theme set for statusbar headers
+        if (themeConfig.getOverlayForHeaders() != null) {
+            themesToProcess.add(themeConfig.getOverlayForHeaders());
         }
         // process themes set for specific apps
         Map<String, ThemeConfig.AppTheme> appThemesMap = themeConfig.getAppThemes();
