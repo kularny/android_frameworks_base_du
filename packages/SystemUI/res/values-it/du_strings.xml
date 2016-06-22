@@ -158,4 +158,16 @@
   <!-- Path data for portrait battery -->
   <!-- Path data for landscape battery -->
   <!-- Path data for circle battery -->
+  <!-- Screenshot Crop & Share -->
+  <string name="action_delete_success">Eliminato</string>
+  <string name="action_delete_fault">Eliminazione non riuscita</string>
+  <string name="action_save_success">Salvato</string>
+  <string name="action_save_fault">Salvataggio non riuscito</string>
+  <string name="pref_action_color_title">Colore pulsanti azione</string>
+  <string name="pref_action_color_summary">Scegli un colore preferito per i pulsanti azione</string>
+  <string name="pref_category_main">Impostazioni principali</string>
+  <string name="pref_category_user">Impostazioni utente</string>
+  <string name="pref_crop_behavior_title">Comportamento al taglio</string>
+  <string name="pref_crop_behavior_summary">Usa l\'immagine ritagliata anche se quella originale non è stata ritagliata con l\'azione di ritaglio</string>
+  <string name="action_ok">OK</string>
 </resources>

@@ -159,4 +159,16 @@
   <!-- Path data for portrait battery -->
   <!-- Path data for landscape battery -->
   <!-- Path data for circle battery -->
+  <!-- Screenshot Crop & Share -->
+  <string name="action_delete_success">Usunięty</string>
+  <string name="action_delete_fault">Usuwanie nie powiodło się</string>
+  <string name="action_save_success">Zapisano</string>
+  <string name="action_save_fault">Zapisywanie nie powiodło się</string>
+  <string name="pref_action_color_title">Kolor przycisków akcji</string>
+  <string name="pref_action_color_summary">Wybierz swój ulubiony kolor przycisków akcji</string>
+  <string name="pref_category_main">Główne ustawienia</string>
+  <string name="pref_category_user">Ustawienia użytkownika</string>
+  <string name="pref_crop_behavior_title">Zachowanie kadrowania</string>
+  <string name="pref_crop_behavior_summary">Użyj kadrowanego obrazu, nawet jeśli oryginalny nie został przycięty akcją kadrowania</string>
+  <string name="action_ok">OK</string>
 </resources>

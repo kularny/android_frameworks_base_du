@@ -158,4 +158,16 @@
   <!-- Path data for portrait battery -->
   <!-- Path data for landscape battery -->
   <!-- Path data for circle battery -->
+  <!-- Screenshot Crop & Share -->
+  <string name="action_delete_success">Törölve</string>
+  <string name="action_delete_fault">Sikertelen törlés</string>
+  <string name="action_save_success">Mentve</string>
+  <string name="action_save_fault">Sikertelen mentés</string>
+  <string name="pref_action_color_title">Akció gombok színe</string>
+  <string name="pref_action_color_summary">Válaszd ki az akciógombok színét</string>
+  <string name="pref_category_main">Fő beállítások</string>
+  <string name="pref_category_user">Felhasználói beállítások</string>
+  <string name="pref_crop_behavior_title">Vágási viselkedés</string>
+  <string name="pref_crop_behavior_summary">A körülvágott kép használata, még akkor is, ha az eredeti nem került körbevágásra a vágás művelettel</string>
+  <string name="action_ok">OK</string>
 </resources>

@@ -19,6 +19,8 @@
   <!-- Wi-Fi hotspot label when enabled -->
   <plurals name="wifi_hotspot_connected_clients_label">
     <item quantity="one">%1$d client</item>
+    <item quantity="two">%1$d clients</item>
+    <item quantity="many">%1$d clients</item>
     <item quantity="other">%1$d clients</item>
   </plurals>
   <!-- Notification which notifies user flashlight is enabled -->
@@ -158,4 +160,16 @@
   <!-- Path data for portrait battery -->
   <!-- Path data for landscape battery -->
   <!-- Path data for circle battery -->
+  <!-- Screenshot Crop & Share -->
+  <string name="action_delete_success">Deleted</string>
+  <string name="action_delete_fault">Deleting was unsuccessful</string>
+  <string name="action_save_success">Saved</string>
+  <string name="action_save_fault">Saving was unsuccessful</string>
+  <string name="pref_action_color_title">Action buttons color</string>
+  <string name="pref_action_color_summary">Choose your favorite color for the action buttons</string>
+  <string name="pref_category_main">Main Settings</string>
+  <string name="pref_category_user">User Settings</string>
+  <string name="pref_crop_behavior_title">Crop behavior</string>
+  <string name="pref_crop_behavior_summary">Use the cropped image even if the original one hasn\'t actually been cropped with the crop action</string>
+  <string name="action_ok">OK</string>
 </resources>

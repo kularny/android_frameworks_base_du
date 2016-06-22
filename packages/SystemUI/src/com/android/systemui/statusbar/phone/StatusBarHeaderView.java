@@ -172,6 +172,9 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     private Drawable mCurrentBackground;
     private float mLastHeight;
 
+    private int headerShadow;
+    private int customHeader;
+
     public StatusBarHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -179,6 +182,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        setOnLongClickListener(this);
         mSystemIconsSuperContainer = findViewById(R.id.system_icons_super_container);
         mSystemIconsContainer = (ViewGroup) findViewById(R.id.system_icons_container);
         mSystemIconsSuperContainer.setOnClickListener(this);
@@ -637,6 +641,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
 
     @Override
     public boolean onLongClick(View v) {
+        vibrateheader(20);
         if (v == mSettingsButton) {
             startSettingsLongClickActivity();
         } else if (v == mSystemIconsSuperContainer) {
@@ -649,13 +654,21 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
             startForecastLongClickActivity();
         } else if (v == mMultiUserSwitch) {
             startUserLongClickActivity();
-        vibrateheader(20);
         } else if (v == mTaskManagerButton) {
             startTaskManagerLongClickActivity();
         } else if (v == mHeadsUpButton) {
             startHeadsUpLongClickActivity();
+        } else if (v == this) {
+            startThemeHeadersActivity();
         }
         return false;
+    }
+
+    private void startThemeHeadersActivity() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClassName("org.cyanogenmod.theme.chooser", "org.cyanogenmod.theme.chooser.ChooserActivity");
+        intent.putExtra("component_filter", "mods_statusbar_headers");
+        mActivityStarter.startActivity(intent, true);
     }
 
     private void startSettingsActivity() {
@@ -1103,6 +1116,10 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HEADS_UP_SHOW_STATUS_BUTTON), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER), false, this);
             update();
         }
 
@@ -1140,6 +1157,14 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                     break;
             }
 
+            headerShadow = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, 0,
+                    UserHandle.USER_CURRENT);
+
+            customHeader = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER, 0,
+                    UserHandle.USER_CURRENT);
+
             mShowBatteryTextExpanded = showExpandedBatteryPercentage;
             updateHeadsUpState();
             updateStatusBarButtonsState();
@@ -1170,6 +1195,7 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
                 mBackgroundImage.setVisibility(View.VISIBLE);
                 setNotificationPanelHeaderBackground(next, force);
                 mCurrentBackground = next;
+                applyHeaderBackgroundShadow();
             }
         } else {
             mCurrentBackground = null;
@@ -1194,14 +1220,16 @@ public class StatusBarHeaderView extends RelativeLayout implements View.OnClickL
     }
 
     private void applyHeaderBackgroundShadow() {
-        final int headerShadow = Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, 0,
-                UserHandle.USER_CURRENT);
-
-        if (mBackgroundImage != null) {
+        if (customHeader == 1) {
             ColorDrawable shadow = new ColorDrawable(Color.BLACK);
             shadow.setAlpha(headerShadow);
             mBackgroundImage.setForeground(shadow);
+            enableTextShadow();
+        } else if (customHeader == 0) {
+            ColorDrawable shadow = new ColorDrawable(Color.BLACK);
+            shadow.setAlpha(0);
+            mBackgroundImage.setForeground(shadow);
+	    disableTextShadow();
         }
     }
 

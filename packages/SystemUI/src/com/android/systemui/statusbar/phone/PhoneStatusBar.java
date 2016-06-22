@@ -562,11 +562,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                             mContext.getContentResolver(),
                             Settings.System.SHOW_FOURG,
                             0, UserHandle.USER_CURRENT) == 1;
-                            recreateStatusBar();
-                            updateRowStates();
-                            updateSpeedbump();
-                            updateClearAll();
-                            updateEmptyShadeView();
+                    mNetworkController.onConfigurationChanged();
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.USE_SLIM_RECENTS))) {
                 updateRecents();
@@ -1338,6 +1334,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         ThreadedRenderer.overrideProperty("ambientRatio", String.valueOf(1.5f));
 
         mStatusBarHeaderMachine.addObserver(mHeader);
+        mStatusBarHeaderMachine.updateResources(mContext.getResources(), StatusBarHeaderMachine.STATUSBAR_RESOURCES);
         mStatusBarHeaderMachine.forceUpdate();
         return mStatusBarView;
     }
@@ -3731,7 +3728,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         SettingsObserver observer = new SettingsObserver(mHandler);
         if (newTheme != null) mCurrentTheme = (ThemeConfig) newTheme.clone();
         if (updateHeaders) {
-            mStatusBarHeaderMachine.updateResources(getHeadersThemedResources());
+            mStatusBarHeaderMachine.updateResources(getHeadersThemedResources(), StatusBarHeaderMachine.HEADER_RESOURCES);
         }
         if (updateStatusBar) {
             recreateStatusBar();
