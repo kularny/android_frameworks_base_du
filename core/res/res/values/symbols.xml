@@ -1718,6 +1718,8 @@
   <java-symbol type="integer" name="config_screenBrightnessDark" />
   <java-symbol type="integer" name="config_screenBrightnessDim" />
   <java-symbol type="integer" name="config_screenBrightnessDoze" />
+  <java-symbol type="integer" name="config_buttonBrightnessSettingDefault" />
+  <java-symbol type="bool" name="config_deviceHasVariableButtonBrightness" />
   <java-symbol type="integer" name="config_shutdownBatteryTemperature" />
   <java-symbol type="integer" name="config_undockedHdmiRotation" />
   <java-symbol type="integer" name="config_virtualKeyQuietTimeMillis" />
@@ -2046,6 +2048,10 @@
   <java-symbol type="layout" name="year_label_text_view" />
   <java-symbol type="layout" name="date_picker_material" />
 
+  <!-- Config.xml entries -->
+  <java-symbol type="string" name="config_deviceKeyHandlerLib" />
+  <java-symbol type="string" name="config_deviceKeyHandlerClass" />
+
   <java-symbol type="id" name="time_header" />
   <java-symbol type="id" name="hours" />
   <java-symbol type="id" name="minutes" />
@@ -2354,4 +2360,16 @@
 
   <java-symbol type="string" name="config_iccHotswapPromptForRestartDialogComponent" />
   <java-symbol type="string" name="config_packagedKeyboardName" />
+
+  <!-- Gesture Sensor -->
+  <java-symbol type="bool" name="config_enableGestureService" />
+
+  <!-- Proximity check on screen on -->
+  <java-symbol type="bool" name="config_proximityCheckOnWake" />
+
+  <!-- Proximity check timeout -->
+  <java-symbol type="integer" name="config_proximityCheckTimeout" />
+
+  <!-- Proximity check on screen on default -->
+  <java-symbol type="bool" name="config_proximityCheckOnWakeEnabledByDefault" />
 </resources>
