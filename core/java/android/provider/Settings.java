@@ -7085,6 +7085,12 @@ public final class Settings {
         public static final String NAVIGATION_BAR_VISIBLE = "navigation_bar_visible";
 
         /**
+         * Three Finger Gesture from Oppo
+         * @hide
+         */
+        public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
+
+        /**
          * The current night mode that has been selected by the user.  Owned
          * and controlled by UiModeManagerService.  Constants are as per
          * UiModeManager.
