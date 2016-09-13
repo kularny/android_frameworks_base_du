@@ -2493,6 +2493,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         case TYPE_INPUT_CONSUMER:
             return 6;
         case TYPE_SYSTEM_DIALOG:
+        case TYPE_RECENTS_OVERLAY:
             return 7;
         case TYPE_TOAST:
             // toasts and the plugged-in battery thing
@@ -5475,6 +5476,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    private boolean isHwKeysDisabled() {
+        return mKeyHandler != null ? mKeyHandler.isHwKeysDisabled() : false;
+    }
+
     /** {@inheritDoc} */
     @Override
     public int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags) {
@@ -5537,14 +5542,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (isValidGlobalKey(keyCode)
                 && mGlobalKeyManager.shouldHandleGlobalKey(keyCode, event)) {
             if (isWakeKey) {
-                wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey, "android.policy:KEY");
+                wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey,
+                       "android.policy:KEY", true);
             }
             return result;
         }
 
         boolean useHapticFeedback = down
                 && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
-                && event.getRepeatCount() == 0;
+                && event.getRepeatCount() == 0
+                && !isHwKeysDisabled();
 
         // Specific device key handling
         if (mDeviceKeyHandler != null) {
@@ -5832,7 +5839,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (isWakeKey) {
-            wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey, "android.policy:KEY");
+            wakeUp(event.getEventTime(), mAllowTheaterModeWakeFromKey, "android.policy:KEY",
+                    event.getKeyCode() == KeyEvent.KEYCODE_WAKEUP /* check prox only on wake key*/);
         }
 
         return result;
@@ -6205,10 +6213,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void wakeUpFromPowerKey(long eventTime) {
-        wakeUp(eventTime, mAllowTheaterModeWakeFromPowerKey, "android.policy:POWER");
+        wakeUp(eventTime, mAllowTheaterModeWakeFromPowerKey, "android.policy:POWER", true);
     }
 
     private boolean wakeUp(long wakeTime, boolean wakeInTheaterMode, String reason) {
+        return wakeUp(wakeTime, wakeInTheaterMode, reason, false);
+    }
+
+    private boolean wakeUp(long wakeTime, boolean wakeInTheaterMode, String reason,
+            boolean withProximityCheck) {
         final boolean theaterModeEnabled = isTheaterModeEnabled();
         if (!wakeInTheaterMode && theaterModeEnabled) {
             return false;
@@ -6219,7 +6232,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.Global.THEATER_MODE_ON, 0);
         }
 
-        mPowerManager.wakeUp(wakeTime, reason);
+        if (withProximityCheck) {
+            mPowerManager.wakeUpWithProximityCheck(wakeTime, reason);
+        } else {
+            mPowerManager.wakeUp(wakeTime, reason);
+        }
         return true;
     }
 

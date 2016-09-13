@@ -1401,6 +1401,14 @@
     <permission android:name="android.permission.MANAGE_USERS"
         android:protectionLevel="signature|privileged" />
 
+    <!-- @hide Allows an application to create, remove users and get the list of
+         users on the device. Applications holding this permission can only create restricted,
+         guest, and managed users. For creating other kind of users,
+         {@link android.Manifest.permission#MANAGE_USERS} is needed.
+         This permission is not available to third party applications. -->
+    <permission android:name="android.permission.CREATE_USERS"
+        android:protectionLevel="signature" />
+
     <!-- @hide Allows an application to set the profile owners and the device owner.
          This permission is not available to third party applications.-->
     <permission android:name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS"
@@ -2727,15 +2735,15 @@
 
     <!-- Allows an application to use the Theme Service
          @hide -->
-    <permission android:name="android.permission.ACCESS_THEME_MANAGER"
+    <permission android:name="cyanogenmod.permission.ACCESS_THEME_MANAGER"
         android:label="@string/permlab_accessThemeService"
         android:description="@string/permdesc_accessThemeService"
-        android:protectionLevel="system|signature" />
+        android:protectionLevel="normal" />
 
     <!-- Allows an application to read the current theme configuration and
          get information about the various themes currently installed
          @hide -->
-    <permission android:name="android.permission.READ_THEMES"
+    <permission android:name="cyanogenmod.permission.READ_THEMES"
         android:label="@string/permlab_readThemes"
         android:description="@string/permdesc_readThemesDesc"
         android:protectionLevel="normal" />
@@ -2744,10 +2752,10 @@
          write information about the various themes currently installed.
          Changing themes should be done through the service ACCESS_THEME_MANAGER
          @hide -->
-    <permission android:name="android.permission.WRITE_THEMES"
+    <permission android:name="cyanogenmod.permission.WRITE_THEMES"
         android:label="@string/permlab_writeThemes"
         android:description="@string/permdesc_writeThemesDesc"
-        android:protectionLevel="system|signature" />
+        android:protectionLevel="normal" />
 
     <application android:process="system"
                  android:persistent="true"

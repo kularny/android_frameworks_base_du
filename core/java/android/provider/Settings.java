@@ -3497,6 +3497,12 @@ public final class Settings {
         public static final Validator SIP_CALL_OPTIONS_VALIDATOR = new DiscreteValueValidator(
                 new String[] {"SIP_ALWAYS", "SIP_ADDRESS_ONLY"});
 
+       /**
+        * Status bar icons transparency
+        * @hide
+        */
+        public static final String STATUS_BAR_ICON_ALPHA = "status_bar_icon_alpha";
+
         /**
          * One of the sip call options: Always use SIP with network access.
          * @hide
@@ -4000,6 +4006,13 @@ public final class Settings {
          * @hide
          */
         public static final String ANIM_TILE_INTERPOLATOR = "anim_tile_interpolator";
+
+        /**
+         * Transition effect in DirtyTweaks tabs
+         *
+         * @hide
+         */
+        public static final String DIRTY_TWEAKS_TABS_EFFECT = "dirty_tweaks_tabs_effect";
 
         /**
          * Whether to show four tiles per row.
@@ -4715,6 +4728,19 @@ public final class Settings {
          * @hide
          */
         public static final String INCREASING_RING_RAMP_UP_TIME = "increasing_ring_ramp_up_time";
+
+        /**
+         * Volume dialog timeout
+         *
+         * @hide
+         */
+        public static final String VOLUME_DIALOG_TIMEOUT = "volume_dialog_timeout";
+
+        /**
+         * Navbar Button Color
+         * @hide
+         */
+        public static final String NAVBAR_BUTTON_COLOR = "navbar_button_color";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -5973,6 +5999,12 @@ public final class Settings {
         public static final String LOCKSCREEN_TARGETS = "lockscreen_target_actions";
 
         /**
+         * Whether detail view for the location tile is enabled
+         * @hide
+         */
+        public static final String QS_LOCATION_ADVANCED = "qs_location_advanced";
+
+        /**
          * Comma-separated list of location providers that activities may access. Do not rely on
          * this value being present in settings.db or on ContentObserver notifications on the
          * corresponding Uri.
@@ -6050,6 +6082,15 @@ public final class Settings {
          */
         @Deprecated
         public static final String LOCK_PATTERN_VISIBLE = "lock_pattern_visible_pattern";
+
+        /**
+         * Disable checking for running overlays during permission changes
+         * running OmniSwitch will trigger this and we want to give people
+         * possibility to make it easier on demand
+         *
+         * @hide
+         */
+        public static final String PACKAGE_INSTALL_OVERLAY_CHECK_DISABLED = "package_install_overlay_check_disabled";
 
         /**
          * Whether lock pattern will vibrate as user enters (0 = false, 1 =
@@ -7085,6 +7126,12 @@ public final class Settings {
         public static final String NAVIGATION_BAR_VISIBLE = "navigation_bar_visible";
 
         /**
+         * Disable hw buttons - actions, brightness, haptic feedback, overflow menu
+         * @hide
+         */
+        public static final String HARDWARE_KEYS_DISABLE = "hardware_keys_disable";
+
+        /**
          * Three Finger Gesture from Oppo
          * @hide
          */
@@ -7381,6 +7428,18 @@ public final class Settings {
         public static final String PULSE_CUSTOM_FUDGE_FACTOR = "pulse_custom_fudge_factor";
 
         /**
+         * Pulse Fudge Factor
+         * @hide
+         */
+        public static final String PULSE_SOLID_FUDGE_FACTOR = "pulse_solid_fudge_factor";
+
+        /**
+         * Pulse Lavamp Animation Speed
+         * @hide
+         */
+        public static final String PULSE_LAVALAMP_SOLID_SPEED = "lava_lamp_solid_speed";
+
+        /**
          * The TCP/IP port to run ADB on, or -1 for USB
          * @hide
          */
@@ -7493,6 +7552,13 @@ public final class Settings {
         public static final String FLING_PULSE_LAVALAMP_SPEED = "fling_pulse_lavalamp_speed";
 
         /**
+         * Pulse renderer implementation
+         *
+         * @hide
+         */
+        public static final String PULSE_RENDER_STYLE_URI = "pulse_render_style";
+
+        /**
          * time it takes to execute Fling long press action
          *
          * @hide
@@ -7546,6 +7612,25 @@ public final class Settings {
          * @hide
          */
         public static final String FLING_LONGSWIPE_THRESHOLD_DOWN_LAND = "fling_longswipe_threshold_down_land";
+
+        /**
+         * width of Fling trails stroke, in density pixels
+         *
+         * @hide
+         */
+        public static final String FLING_TRAILS_WIDTH = "fling_trails_width";
+
+        /**
+         * Navbar buttons transparency
+         * @hide
+         */
+        public static final String NAVBAR_BUTTONS_ALPHA = "navbar_buttons_alpha";
+
+        /**
+         * Components that the Themes qstile modifies
+         * @hide
+         */
+        public static final String THEMES_TILE_COMPONENTS = "themes_tile_components";
 
         /**
          * This are the settings to be backed up.
@@ -9314,6 +9399,12 @@ public final class Settings {
         public static final String SHOW_PROCESSES = "show_processes";
 
         /**
+         * Control whether the process CPU info meter should be shown.
+         * @hide
+         */
+        public static final String SHOW_CPU = "show_cpu";
+
+        /**
          * If 1 low power mode is enabled.
          * @hide
          */
@@ -9450,6 +9541,15 @@ public final class Settings {
          * @hide
          */
         public static final String POLICY_CONTROL = "policy_control";
+
+        /**
+         * Defines global runtime overrides to window policy style.
+         *
+         * See {@link android.view.WindowManagerPolicyControl} for value definitions.
+         *
+         * @hide
+         */
+        public static final String POLICY_CONTROL_STYLE = "policy_control_style";
 
         /**
          * Defines global runtime overrides to window policy.

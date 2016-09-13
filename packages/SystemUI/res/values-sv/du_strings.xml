@@ -28,7 +28,7 @@
   <string name="battery_saver_dismiss_title">Avvisa</string>
   <string name="battery_saver_notification_action_text_short">Stäng av</string>
   <!-- SystemUI Tuner Parts -->
-  <string name="systemui_tuner_statusbar_title">Statusbar objekt</string>
+  <string name="systemui_tuner_statusbar_title">Statusfält objekt</string>
   <string name="systemui_tuner_qs_title">Snabbinställningar</string>
   <!-- Screenshot Delete Toast -->
   <string name="delete_screenshot_toast">Skärmdump raderad</string>
@@ -37,7 +37,7 @@
   <!-- Strings for lockscreen shortcut hints -->
   <string name="left_shortcut_hint">Svep åt höger för %1$s</string>
   <string name="right_shortcut_hint">Svep åt vänster för %1$s</string>
-  <string name="lockscreen_message">Tryck på en ikon på vänster eller höger sida så kan du ändra låsskärms genvägar.</string>
+  <string name="lockscreen_message">Tryck på en ikon på vänster eller höger sida för att ändra låsskärmsgenvägar.</string>
   <string name="lockscreen_default_target">Standard</string>
   <string name="select_application">Välj applikation</string>
   <string name="lockscreen_choose_action_title">Välj åtgärd</string>
@@ -122,8 +122,8 @@
   <string name="message_keep_one_launcher">Bör hålla minst en hem aktivitet!</string>
   <!-- 4G LTE switch -->
   <string name="show_fourg_title">Visa 4G i stället för LTE</string>
-  <string name="show_fourg_summary">Ersätter LTE statusbar indikator med 4G</string>
-  <string name="statusbar_tuner_category_title">Dölj objekt från statusbar</string>
+  <string name="show_fourg_summary">Ersätter LTE statusfält indikator med 4G</string>
+  <string name="statusbar_tuner_category_title">Dölj objekt från statusfält</string>
   <!-- Compass QS Tile -->
   <string name="quick_settings_compass">Kompass</string>
   <string name="quick_settings_compass_off">Kompass av</string>
@@ -144,6 +144,8 @@
   <string name="status_bar_headset">Trådanslutet headset</string>
   <!-- vpn icon switch -->
   <string name="status_bar_vpn">VPN</string>
+  <!-- Du logo switch -->
+  <string name="show_du_logo_title">DU Logga</string>
   <!-- Caffeine Tile -->
   <string name="quick_settings_caffeine_label">Koffein</string>
   <!-- Content description of the caffeine tile in quick settings when off (not shown on the screen). [CHAR LIMIT=NONE] -->
@@ -163,11 +165,19 @@
   <string name="action_delete_fault">Borttagning misslyckades</string>
   <string name="action_save_success">Sparat</string>
   <string name="action_save_fault">Sparandet misslyckades</string>
-  <string name="pref_action_color_title">Åtgärdknapps färg</string>
-  <string name="pref_action_color_summary">Välj din favorit färg för åtgärdsknapparna</string>
-  <string name="pref_category_main">Huvudinställningar</string>
-  <string name="pref_category_user">Användarinställningar</string>
-  <string name="pref_crop_behavior_title">Beskärnings beteende</string>
-  <string name="pref_crop_behavior_summary">Använd den beskurna bilden även om den originella egentligen inte beskurits med beskärnings funktionen</string>
-  <string name="action_ok">OK</string>
+  <string name="action_edit">Redigera</string>
+  <!-- QS location sensors mode -->
+  <string name="accessibility_quick_settings_location_battery_saving">Plats rapportering: batterisparläge.</string>
+  <string name="accessibility_quick_settings_location_gps_only">Plats rapportering: sensorer endast läge.</string>
+  <string name="accessibility_quick_settings_location_high_accuracy">Plats rapportering: hög noggrannhet läge.</string>
+  <string name="accessibility_quick_settings_location_changed_battery_saving">Plats rapportering ändras till batterisparläge.</string>
+  <string name="accessibility_quick_settings_location_changed_gps_only">Plats rapportering ändras till sensorer endast läge.</string>
+  <string name="accessibility_quick_settings_location_changed_high_accuracy">Plats rapportering ändrats till hög noggrannhet läge.</string>
+  <string name="quick_settings_location_detail_title">Platsläge</string>
+  <string name="quick_settings_location_battery_saving_label">Batterisparläge</string>
+  <string name="quick_settings_location_gps_only_label">Endast enhet</string>
+  <string name="quick_settings_location_high_accuracy_label">Hög noggrannhet</string>
+  <!-- Status bar icons transparency -->
+  <string name="status_bar_icon_transparency_title">Status bar icons transparency</string>
+  <string name="status_bar_icon_transparency_summary">Set opacity of status bar icons</string>
 </resources>

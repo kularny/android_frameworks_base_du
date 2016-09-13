@@ -1507,7 +1507,7 @@
   <!-- Title of the WebView save password dialog.  If the user enters a password in a form on a website, a dialog will come up asking if they want to save the password. -->
   <string name="save_password_label">Bekräfta</string>
   <!-- Toast for double-tap -->
-  <string name="double_tap_toast">Tips! Dubbelknacka om du vill zooma in eller ut.</string>
+  <string name="double_tap_toast">Tips! Dubbeltryck om du vill zooma in eller ut.</string>
   <!-- Text to show in the auto complete drop down list on a text view when the WebView can auto fill the entire form, and the user has configured an AutoFill profile [CHAR-LIMIT=8] -->
   <string name="autofill_this_form">Autofyll</string>
   <!-- Text to show in the auto complete drop down list on a text view when the WebView can auto fill the entire form but the user has not configured an AutoFill profile [CHAR-LIMIT=19] -->
@@ -1941,7 +1941,7 @@
   <!-- Title of the dialog where the user is adjusting the phone call volume when connected on bluetooth-->
   <string name="volume_bluetooth_call">Samtalsvolym för Bluetooth</string>
   <!-- Title of the dialog where the user is adjusting the audio volume for alarms -->
-  <string name="volume_alarm">Larmvolym</string>
+  <string name="volume_alarm">Alarmvolym</string>
   <!-- Title of the dialog where the user is adjusting the audio volume for notifications -->
   <string name="volume_notification">Aviseringsvolym</string>
   <!-- Title of the dialog where the user is adjusting the general audio volume -->

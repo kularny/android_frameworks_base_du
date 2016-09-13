@@ -21,7 +21,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -80,8 +79,6 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
     private boolean receiverRegistered = false;
     Handler mainHandler;
     HandlerThread handlerThread = null;
-
-    CountDownTimer countDownTimer;
 
     public static final int WORK_MODE_CROP = 0;
     public static String KEY_SERVICE_SWITCH = "service_switch";
@@ -181,32 +178,6 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
             public void run() {
 
                 screenshot = BitmapFactory.decodeFile(screenshotPath);
-              /*  countDownTimer = new CountDownTimer(10000, 500) {
-                    long millis = 0;
-
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        millis = millisUntilFinished;
-                        if (screenshot == null)
-                            screenshot = BitmapFactory.decodeFile(screenshotPath);
-                        else {
-                            this.cancel();
-                            onFinish();
-                        }
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        if (screenshot != null) {
-                            cropView.setImageBitmap(screenshot);
-                            if (!isShowing)
-                                wm.addView(mainLayout, getParams());
-                            else
-                                wm.updateViewLayout(mainLayout, getParams());
-                            isShowing = true;
-                        }
-                    }
-                }.start();*/
 		cropView.setImageBitmap(screenshot);
                 if (!isShowing)
                     wm.addView(mainLayout, getParams());
@@ -401,7 +372,7 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
         workModeButton = (ImageButton) mainLayout.findViewById(R.id.workMode);
         workMode = preferences.getInt(KEY_WORK_MODE, WORK_MODE_CROP);
         ImageArrayAdapter adapter = new ImageArrayAdapter(mContext,
-                new Integer[]{R.drawable.ic_image_crop, R.drawable.ic_image_edit, R.drawable.ic_action_visibility});
+                new Integer[]{R.drawable.ic_image_crop, R.drawable.ic_image_edit, R.drawable.ic_action_visibility, R.drawable.ic_image_blur});
         listPopupWindow.setAdapter(adapter);
         listPopupWindow.setAnchorView(workModeButton);
         listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -451,6 +422,7 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
                 deleteBitmap(screenshotPath);
                 break;
             case R.id.share:
+                cropView.mergeBlur();
                 boolean cropAnytime = Settings.System.getInt(getContentResolver(), Settings.System.SCREENSHOT_CROP_BEHAVIOR, 1) != 0;
                 bm = cropAnytime ? cropView.getCroppedBitmap() : cropView.getImageBitmap();
                 cropView.setCropEnabled(false);
@@ -460,6 +432,7 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
                 removeView();
                 break;
             case R.id.save:
+                cropView.mergeBlur();
                 cropAnytime = Settings.System.getInt(getContentResolver(), Settings.System.SCREENSHOT_CROP_BEHAVIOR, 1) != 0;
                 bm = cropAnytime ? cropView.getCroppedBitmap() : cropView.getImageBitmap();
                 if (saveBitmap(bm))
@@ -491,6 +464,8 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
             case 0:
                 cropView.setCropEnabled(true);
                 cropView.setDrawEnabled(false);
+                cropView.setBlurEnabled(false);
+                cropView.mergeBlur();
                 workModeButton.setImageResource(R.drawable.ic_image_crop);
                 layoutWorkModeDraw.setVisibility(View.GONE);
                 layoutWorkModeCrop.setVisibility(View.VISIBLE);
@@ -498,6 +473,8 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
             case 1:
                 cropView.setCropEnabled(false);
                 cropView.setDrawEnabled(true);
+                cropView.setBlurEnabled(false);
+                cropView.mergeBlur();
                 workModeButton.setImageResource(R.drawable.ic_image_edit);
                 layoutWorkModeDraw.setVisibility(View.VISIBLE);
                 layoutWorkModeCrop.setVisibility(View.GONE);
@@ -505,7 +482,17 @@ public class ScreenshotEditor extends Service implements View.OnClickListener {
             case 2:
                 cropView.setCropEnabled(false);
                 cropView.setDrawEnabled(false);
+                cropView.setBlurEnabled(false);
+                cropView.mergeBlur();
                 workModeButton.setImageResource(R.drawable.ic_action_visibility);
+                layoutWorkModeDraw.setVisibility(View.GONE);
+                layoutWorkModeCrop.setVisibility(View.GONE);
+                break;
+            case 3:
+                cropView.setCropEnabled(false);
+                cropView.setDrawEnabled(false);
+                cropView.setBlurEnabled(true);
+                workModeButton.setImageResource(R.drawable.ic_image_blur);
                 layoutWorkModeDraw.setVisibility(View.GONE);
                 layoutWorkModeCrop.setVisibility(View.GONE);
                 break;

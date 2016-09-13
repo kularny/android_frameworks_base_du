@@ -153,6 +153,7 @@ import android.content.pm.VerificationParams;
 import android.content.pm.VerifierDeviceIdentity;
 import android.content.pm.VerifierInfo;
 import android.content.res.Configuration;
+import android.content.res.IThemeService;
 import android.content.res.Resources;
 import android.content.res.AssetManager;
 import android.content.res.ThemeConfig;
@@ -329,6 +330,7 @@ public class PackageManagerService extends IPackageManager.Stub {
     private static final boolean DEBUG_PACKAGE_SCANNING = false;
     private static final boolean DEBUG_VERIFY = false;
     private static final boolean DEBUG_DEXOPT = false;
+    private static final boolean DEBUG_FILTERS = false;
     private static final boolean DEBUG_ABI_SELECTION = false;
 
     static final boolean CLEAR_RUNTIME_PERMISSIONS_ON_UPGRADE = false;
@@ -7282,6 +7284,25 @@ public class PackageManagerService extends IPackageManager.Stub {
         KeySetManagerService ksms = mSettings.mKeySetManagerService;
         ksms.assertScannedPackageValid(pkg);
 
+        // Get the current theme config. We do this outside the lock
+        // since ActivityManager might be waiting on us already
+        // and a deadlock would result.
+        final boolean isBootScan = (scanFlags & SCAN_BOOTING) != 0;
+        ThemeConfig config = mBootThemeConfig;
+        if (!isBootScan) {
+            final IActivityManager am = ActivityManagerNative.getDefault();
+            try {
+                if (am != null) {
+                    config = am.getConfiguration().themeConfig;
+                } else {
+                    Log.w(TAG, "ActivityManager getDefault() " +
+                            "returned null, cannot compile app's theme");
+                }
+            } catch(RemoteException e) {
+                Log.w(TAG, "Failed to get the theme config from ActivityManager");
+            }
+        }
+
         // writer
         synchronized (mPackages) {
             // We don't expect installation to fail beyond this point
@@ -7626,7 +7647,6 @@ public class PackageManagerService extends IPackageManager.Stub {
 
             pkgSetting.setTimeStamp(scanFileTime);
 
-            final boolean isBootScan = (scanFlags & SCAN_BOOTING) != 0;
             // Generate resources & idmaps if pkg is NOT a theme
             // We must compile resources here because during the initial boot process we may get
             // here before a default theme has had a chance to compile its resources
@@ -7634,21 +7654,6 @@ public class PackageManagerService extends IPackageManager.Stub {
             // in background)
             if (pkg.mOverlayTargets.isEmpty() && mOverlays.containsKey(pkg.packageName)) {
                 ArrayMap<String, PackageParser.Package> themes = mOverlays.get(pkg.packageName);
-
-                final IActivityManager am = ActivityManagerNative.getDefault();
-                ThemeConfig themeConfig = null;
-                try {
-                    if (am != null) {
-                        themeConfig = am.getConfiguration().themeConfig;
-                    } else {
-                        Log.e(TAG, "ActivityManager getDefault() " +
-                                "returned null, cannot compile app's theme");
-                    }
-                } catch(RemoteException e) {
-                    Log.e(TAG, "Failed to get the theme config ", e);
-                }
-
-                ThemeConfig config = isBootScan ? mBootThemeConfig : themeConfig;
 
                 if (config != null) {
                     for(PackageParser.Package themePkg : themes.values()) {
@@ -8131,7 +8136,8 @@ public class PackageManagerService extends IPackageManager.Stub {
 
         boolean hasCommonResources = (hasCommonResources(pkg) && !isCommonResources);
         PackageParser.Package targetPkg = mPackages.get(target);
-        String appPath = targetPkg != null ? targetPkg.baseCodePath : "";
+        String appPath = targetPkg != null ? targetPkg.baseCodePath :
+                Environment.getRootDirectory() + "/framework/framework-res.apk";
 
         if (mInstaller.aapt(pkg.baseCodePath, internalPath, resPath, sharedGid, pkgId,
                 pkg.applicationInfo.targetSdkVersion,
@@ -9255,6 +9261,255 @@ public class PackageManagerService extends IPackageManager.Stub {
             return super.queryIntentFromList(intent, resolvedType, defaultOnly, listCut, userId);
         }
 
+        /**
+         * Finds a privileged activity that matches the specified activity names.
+         */
+        private PackageParser.Activity findMatchingActivity(
+                List<PackageParser.Activity> activityList, ActivityInfo activityInfo) {
+            for (PackageParser.Activity sysActivity : activityList) {
+                if (sysActivity.info.name.equals(activityInfo.name)) {
+                    return sysActivity;
+                }
+                if (sysActivity.info.name.equals(activityInfo.targetActivity)) {
+                    return sysActivity;
+                }
+                if (sysActivity.info.targetActivity != null) {
+                    if (sysActivity.info.targetActivity.equals(activityInfo.name)) {
+                        return sysActivity;
+                    }
+                    if (sysActivity.info.targetActivity.equals(activityInfo.targetActivity)) {
+                        return sysActivity;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public class IterGenerator<E> {
+            public Iterator<E> generate(ActivityIntentInfo info) {
+                return null;
+            }
+        }
+
+        public class ActionIterGenerator extends IterGenerator<String> {
+            @Override
+            public Iterator<String> generate(ActivityIntentInfo info) {
+                return info.actionsIterator();
+            }
+        }
+
+        public class CategoriesIterGenerator extends IterGenerator<String> {
+            @Override
+            public Iterator<String> generate(ActivityIntentInfo info) {
+                return info.categoriesIterator();
+            }
+        }
+
+        public class SchemesIterGenerator extends IterGenerator<String> {
+            @Override
+            public Iterator<String> generate(ActivityIntentInfo info) {
+                return info.schemesIterator();
+            }
+        }
+
+        public class AuthoritiesIterGenerator extends IterGenerator<IntentFilter.AuthorityEntry> {
+            @Override
+            public Iterator<IntentFilter.AuthorityEntry> generate(ActivityIntentInfo info) {
+                return info.authoritiesIterator();
+            }
+        }
+
+        /**
+         * <em>WARNING</em> for performance reasons, the passed in intentList WILL BE
+         * MODIFIED. Do not pass in a list that should not be changed.
+         */
+        private <T> void getIntentListSubset(List<ActivityIntentInfo> intentList,
+                IterGenerator<T> generator, Iterator<T> searchIterator) {
+            // loop through the set of actions; every one must be found in the intent filter
+            while (searchIterator.hasNext()) {
+                // we must have at least one filter in the list to consider a match
+                if (intentList.size() == 0) {
+                    break;
+                }
+
+                final T searchAction = searchIterator.next();
+
+                // loop through the set of intent filters
+                final Iterator<ActivityIntentInfo> intentIter = intentList.iterator();
+                while (intentIter.hasNext()) {
+                    final ActivityIntentInfo intentInfo = intentIter.next();
+                    boolean selectionFound = false;
+
+                    // loop through the intent filter's selection criteria; at least one
+                    // of them must match the searched criteria
+                    final Iterator<T> intentSelectionIter = generator.generate(intentInfo);
+                    while (intentSelectionIter != null && intentSelectionIter.hasNext()) {
+                        final T intentSelection = intentSelectionIter.next();
+                        if (intentSelection != null && intentSelection.equals(searchAction)) {
+                            selectionFound = true;
+                            break;
+                        }
+                    }
+
+                    // the selection criteria wasn't found in this filter's set; this filter
+                    // is not a potential match
+                    if (!selectionFound) {
+                        intentIter.remove();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Adjusts the priority of the given intent filter according to policy.
+         * <p>
+         * <ul>
+         * <li>The priority for unbundled updates to system applications is capped to the
+         *      priority defined on the system partition</li>
+         * </ul>
+         */
+        private void adjustPriority(
+                List<PackageParser.Activity> systemActivities, ActivityIntentInfo intent) {
+            // nothing to do; priority is fine as-is
+            if (intent.getPriority() <= 0) {
+                return;
+            }
+
+            final ActivityInfo activityInfo = intent.activity.info;
+            final ApplicationInfo applicationInfo = activityInfo.applicationInfo;
+
+            final boolean systemApp = applicationInfo.isSystemApp();
+            if (!systemApp) {
+                // non-system applications can never define a priority >0
+                Slog.w(TAG, "Non-system app; cap priority to 0;"
+                        + " package: " + applicationInfo.packageName
+                        + " activity: " + intent.activity.className
+                        + " origPrio: " + intent.getPriority());
+                intent.setPriority(0);
+                return;
+            }
+
+            if (systemActivities == null) {
+                // the system package is not disabled; we're parsing the system partition
+                // apps on the system image get whatever priority they request
+                return;
+            }
+
+            // system app unbundled update ... try to find the same activity
+            final PackageParser.Activity foundActivity =
+                    findMatchingActivity(systemActivities, activityInfo);
+            if (foundActivity == null) {
+                // this is a new activity; it cannot obtain >0 priority
+                if (DEBUG_FILTERS) {
+                    Slog.i(TAG, "New activity; cap priority to 0;"
+                            + " package: " + applicationInfo.packageName
+                            + " activity: " + intent.activity.className
+                            + " origPrio: " + intent.getPriority());
+                }
+                intent.setPriority(0);
+                return;
+            }
+
+            // found activity, now check for filter equivalence
+
+            // a shallow copy is enough; we modify the list, not its contents
+            final List<ActivityIntentInfo> intentListCopy =
+                    new ArrayList<>(foundActivity.intents);
+            final List<ActivityIntentInfo> foundFilters = findFilters(intent);
+
+            // find matching action subsets
+            final Iterator<String> actionsIterator = intent.actionsIterator();
+            if (actionsIterator != null) {
+                getIntentListSubset(
+                        intentListCopy, new ActionIterGenerator(), actionsIterator);
+                if (intentListCopy.size() == 0) {
+                    // no more intents to match; we're not equivalent
+                    if (DEBUG_FILTERS) {
+                        Slog.i(TAG, "Mismatched action; cap priority to 0;"
+                                + " package: " + applicationInfo.packageName
+                                + " activity: " + intent.activity.className
+                                + " origPrio: " + intent.getPriority());
+                    }
+                    intent.setPriority(0);
+                    return;
+                }
+            }
+
+            // find matching category subsets
+            final Iterator<String> categoriesIterator = intent.categoriesIterator();
+            if (categoriesIterator != null) {
+                getIntentListSubset(intentListCopy, new CategoriesIterGenerator(),
+                        categoriesIterator);
+                if (intentListCopy.size() == 0) {
+                    // no more intents to match; we're not equivalent
+                    if (DEBUG_FILTERS) {
+                        Slog.i(TAG, "Mismatched category; cap priority to 0;"
+                                + " package: " + applicationInfo.packageName
+                                + " activity: " + intent.activity.className
+                                + " origPrio: " + intent.getPriority());
+                    }
+                    intent.setPriority(0);
+                    return;
+                }
+            }
+
+            // find matching schemes subsets
+            final Iterator<String> schemesIterator = intent.schemesIterator();
+            if (schemesIterator != null) {
+                getIntentListSubset(intentListCopy, new SchemesIterGenerator(),
+                        schemesIterator);
+                if (intentListCopy.size() == 0) {
+                    // no more intents to match; we're not equivalent
+                    if (DEBUG_FILTERS) {
+                        Slog.i(TAG, "Mismatched scheme; cap priority to 0;"
+                                + " package: " + applicationInfo.packageName
+                                + " activity: " + intent.activity.className
+                                + " origPrio: " + intent.getPriority());
+                    }
+                    intent.setPriority(0);
+                    return;
+                }
+            }
+
+            // find matching authorities subsets
+            final Iterator<IntentFilter.AuthorityEntry>
+                    authoritiesIterator = intent.authoritiesIterator();
+            if (authoritiesIterator != null) {
+                getIntentListSubset(intentListCopy,
+                        new AuthoritiesIterGenerator(),
+                        authoritiesIterator);
+                if (intentListCopy.size() == 0) {
+                    // no more intents to match; we're not equivalent
+                    if (DEBUG_FILTERS) {
+                        Slog.i(TAG, "Mismatched authority; cap priority to 0;"
+                                + " package: " + applicationInfo.packageName
+                                + " activity: " + intent.activity.className
+                                + " origPrio: " + intent.getPriority());
+                    }
+                    intent.setPriority(0);
+                    return;
+                }
+            }
+
+            // we found matching filter(s); app gets the max priority of all intents
+            int cappedPriority = 0;
+            for (int i = intentListCopy.size() - 1; i >= 0; --i) {
+                cappedPriority = Math.max(cappedPriority, intentListCopy.get(i).getPriority());
+            }
+            if (intent.getPriority() > cappedPriority) {
+                if (DEBUG_FILTERS) {
+                    Slog.i(TAG, "Found matching filter(s);"
+                            + " cap priority to " + cappedPriority + ";"
+                            + " package: " + applicationInfo.packageName
+                            + " activity: " + intent.activity.className
+                            + " origPrio: " + intent.getPriority());
+                }
+                intent.setPriority(cappedPriority);
+                return;
+            }
+            // all this for nothing; the requested priority was <= what was on the system
+        }
+
         public final void addActivity(PackageParser.Activity a, String type) {
             final boolean systemApp = a.info.applicationInfo.isSystemApp();
             mActivities.put(a.getComponentName(), a);
@@ -9267,10 +9522,12 @@ public class PackageManagerService extends IPackageManager.Stub {
             final int NI = a.intents.size();
             for (int j=0; j<NI; j++) {
                 PackageParser.ActivityIntentInfo intent = a.intents.get(j);
-                if (!systemApp && intent.getPriority() > 0 && "activity".equals(type)) {
-                    intent.setPriority(0);
-                    Log.w(TAG, "Package " + a.info.applicationInfo.packageName + " has activity "
-                            + a.className + " with priority > 0, forcing to 0");
+                if ("activity".equals(type)) {
+                    final PackageSetting ps =
+                            mSettings.getDisabledSystemPkgLPr(intent.activity.info.packageName);
+                    final List<PackageParser.Activity> systemActivities =
+                            ps != null && ps.pkg != null ? ps.pkg.activities : null;
+                    adjustPriority(systemActivities, intent);
                 }
                 if (DEBUG_SHOW_INFO) {
                     Log.v(TAG, "    IntentFilter:");
@@ -9423,18 +9680,6 @@ public class PackageManagerService extends IPackageManager.Stub {
             }
             out.println();
         }
-
-//        List<ResolveInfo> filterEnabled(List<ResolveInfo> resolveInfoList) {
-//            final Iterator<ResolveInfo> i = resolveInfoList.iterator();
-//            final List<ResolveInfo> retList = Lists.newArrayList();
-//            while (i.hasNext()) {
-//                final ResolveInfo resolveInfo = i.next();
-//                if (isEnabledLP(resolveInfo.activityInfo)) {
-//                    retList.add(resolveInfo);
-//                }
-//            }
-//            return retList;
-//        }
 
         // Keys are String (activity class name), values are Activity.
         private final ArrayMap<ComponentName, PackageParser.Activity> mActivities
@@ -11494,8 +11739,6 @@ public class PackageManagerService extends IPackageManager.Stub {
          * Called after the source arguments are copied. This is used mostly for
          * MoveParams when it needs to read the source file to put it in the
          * destination.
-         *
-         * @return
          */
         int doPostCopy(int uid) {
             return PackageManager.INSTALL_SUCCEEDED;
@@ -17404,7 +17647,10 @@ public class PackageManagerService extends IPackageManager.Stub {
     public int processThemeResources(String themePkgName) {
         mContext.enforceCallingOrSelfPermission(
                 Manifest.permission.ACCESS_THEME_MANAGER, null);
-        PackageParser.Package pkg = mPackages.get(themePkgName);
+        PackageParser.Package pkg;
+        synchronized (mPackages) {
+            pkg = mPackages.get(themePkgName);
+        }
         if (pkg == null) {
             Log.w(TAG, "Unable to get pkg for processing " + themePkgName);
             return 0;
@@ -17425,11 +17671,15 @@ public class PackageManagerService extends IPackageManager.Stub {
 
         // Generate Idmaps and res tables if pkg is a theme
         Iterator<String> iterator = pkg.mOverlayTargets.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             String target = iterator.next();
             Exception failedException = null;
+            PackageParser.Package targetPkg;
+            synchronized (mPackages) {
+                targetPkg = mPackages.get(target);
+            }
             try {
-                compileResourcesAndIdmapIfNeeded(mPackages.get(target), pkg);
+                compileResourcesAndIdmapIfNeeded(targetPkg, pkg);
             } catch (IdmapException e) {
                 failedException = e;
             } catch (AaptException e) {
@@ -17460,10 +17710,16 @@ public class PackageManagerService extends IPackageManager.Stub {
     }
 
     private void processThemeResourcesInThemeService(String pkgName) {
-        ThemeManager tm =
-                (ThemeManager) mContext.getSystemService(Context.THEME_SERVICE);
-        if (tm != null) {
-            tm.processThemeResources(pkgName);
+        IThemeService ts = IThemeService.Stub.asInterface(ServiceManager.getService(
+                Context.THEME_SERVICE));
+        if (ts == null) {
+            Slog.e(TAG, "Theme service not available");
+            return;
+        }
+        try {
+            ts.processThemeResources(pkgName);
+        } catch (RemoteException e) {
+            /* ignore */
         }
     }
 
